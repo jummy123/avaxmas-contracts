@@ -88,21 +88,42 @@ describe("SecretSanta", function () {
 
         describe("After end time", async function () {
           beforeEach(async function () {
+            const tx = await this.token.mint(this.signers[2].address);
+            const receipt = await tx.wait();
+            this.newToken = BigNumber.from(ethers.utils.hexValue(receipt.logs[0]['topics'][3]));
+            await this.token.connect(this.signers[2]).approve(this.secretSanta.address, this.newToken);
+            await this.secretSanta.connect(this.signers[2]).deposit(this.token.address, this.newToken);
             await time.setNextBlockTimestamp(1672531201);
             await mine();
-          });
 
-          it("should end if after end time only once", async function (){
             await expect(this.secretSanta.end())
               .to.emit(this.secretSanta, "Ended")
               .withArgs(this.signers[0].address);
+            await this.vrf.fulfill()
+          });
 
+          it("should revert if ended twice", async function (){
             await expect(this.secretSanta.end())
               .to.be.reverted;
           });
 
+          it("should allocate gift after ending", async function () {
+            expect(
+              await this.secretSanta.receiverDetails(this.signers[1].address)
+            )
+              .to.eql([this.signers[2].address, this.token.address, this.newToken])
+
+            await expect(
+              await this.secretSanta.receiverDetails(this.signers[2].address)
+            )
+              .to.eql([this.signers[1].address, this.token.address, this.tokenOne])
+          });
+
+          it("should send gift when claiming", async function () {
+
+          });
+
           it("should not allow deposit after ended", async function () {
-            await this.secretSanta.end();
 
             const tx = await this.token.mint(this.signers[9].address);
             const receipt = await tx.wait();

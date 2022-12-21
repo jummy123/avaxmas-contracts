@@ -107,10 +107,13 @@ contract SecretSanta is
 
     /// @notice Returns the collection, tokenId and for a gift.
     /// @notice Returns null, null, null if raffle not ended.
-    function receiverDetails(address receiver) public view returns (address, uint256) {
+    function receiverDetails(address receiver) public view returns (address, address, uint256) {
         require(randomResult != 0, "Not ended");
         Entry memory entry = entries[(entryIndex[receiver] + randomResult) % entries.length];
-        return (entry.collection, entry.tokenId);
+        if (entry.sender == receiver) {
+          entry = entries[(entryIndex[receiver] + randomResult + 1) % entries.length];
+        }
+        return (entry.sender, entry.collection, entry.tokenId);
     }
 
     /// @notice Sends the token received to the caller.
@@ -118,6 +121,9 @@ contract SecretSanta is
         require(randomResult != 0, "Not ended");
         require(entryIndex[msg.sender] != 0, "Not entered");
         Entry memory entry = entries[(entryIndex[msg.sender] + randomResult) % entries.length];
+        if (entry.sender == msg.sender) {
+          entry = entries[(entryIndex[msg.sender] + randomResult + 1) % entries.length];
+        }
         require(IERC721(entry.collection).ownerOf(entry.tokenId) == address(this), "Already claimed");
         IERC721(entry.collection).safeTransferFrom(address(this), msg.sender, entry.tokenId);
         emit Received(msg.sender, entry.collection, entry.tokenId);
