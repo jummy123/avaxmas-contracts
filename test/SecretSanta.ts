@@ -120,6 +120,21 @@ describe("SecretSanta", function () {
           });
 
           it("should send gift when claiming", async function () {
+            await expect(
+              this.secretSanta.connect(this.signers[1]).claim()
+            )
+              .to.emit(this.secretSanta, "Received")
+              .withArgs(this.signers[1].address, this.token.address, this.newToken);
+            expect(await this.token.ownerOf(this.newToken))
+              .to.equal(this.signers[1].address);
+
+            await expect(
+              this.secretSanta.connect(this.signers[2]).claim()
+            )
+              .to.emit(this.secretSanta, "Received")
+              .withArgs(this.signers[2].address, this.token.address, this.tokenOne);
+            expect(await this.token.ownerOf(this.tokenOne))
+              .to.equal(this.signers[2].address);
 
           });
 
