@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { deployments, ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+import { time, mine } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("SecretSanta", function () {
   before(async function () {
@@ -81,20 +81,27 @@ describe("SecretSanta", function () {
         it("should revert if ended before time", async function (){
           await expect(this.secretSanta.end())
             .to.be.reverted;
-          //await time.setNextBlockTimestamp(1671630890);
         });
 
-        it("should end if after end time only once", async function (){
-          await time.setNextBlockTimestamp(1672531200);
-          await expect(this.secretSanta.end())
-            .to.emit(this.secretSanta, "Ended")
-            .withArgs(this.signers[0].address);
+        describe("After end time", async function () {
+          beforeEach(async function () {
+            await time.setNextBlockTimestamp(1672531201);
+            await mine();
+          });
 
-          await expect(this.secretSanta.end())
-            .to.be.reverted;
+          it("should end if after end time only once", async function (){
+            await expect(this.secretSanta.end())
+              .to.emit(this.secretSanta, "Ended")
+              .withArgs(this.signers[0].address);
+
+            await expect(this.secretSanta.end())
+              .to.be.reverted;
+          });
+
         });
 
       });
+
     });
 
   });
