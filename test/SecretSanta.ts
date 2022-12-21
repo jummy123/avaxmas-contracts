@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { deployments, ethers, network } from "hardhat";
 import { BigNumber } from "ethers";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("SecretSanta", function () {
   before(async function () {
@@ -10,6 +11,7 @@ describe("SecretSanta", function () {
   beforeEach(async function () {
     await deployments.fixture(["SecretSanta", "TestToken", "MockVRFCoordinator"]);
     this.secretSanta = await ethers.getContract("SecretSanta");
+    this.vrf = await ethers.getContract("MockVRFCoordinator");
     this.token = await ethers.getContract("TestToken");
     this.tokenOne = (await this.token.mint(this.signers[1].address)).value;
   });
@@ -75,6 +77,23 @@ describe("SecretSanta", function () {
             .to.be.reverted;
 
         });
+
+        it("should revert if ended before time", async function (){
+          await expect(this.secretSanta.end())
+            .to.be.reverted;
+          //await time.setNextBlockTimestamp(1671630890);
+        });
+
+        it("should end if after end time only once", async function (){
+          await time.setNextBlockTimestamp(1672531200);
+          await expect(this.secretSanta.end())
+            .to.emit(this.secretSanta, "Ended")
+            .withArgs(this.signers[0].address);
+
+          await expect(this.secretSanta.end())
+            .to.be.reverted;
+        });
+
       });
     });
 

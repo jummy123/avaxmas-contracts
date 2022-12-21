@@ -36,6 +36,8 @@ contract SecretSanta is
         uint256 tokenId
     );
 
+    event Ended(address indexed ender);
+
     EnumerableSet.AddressSet private collectionAllowList;
 
     // VRF config.
@@ -71,8 +73,9 @@ contract SecretSanta is
     }
 
     /// @notice Call chainlink VRF and set `randomCalled`.
-    function end() public onlyOwner {
+    function end() public {
         require(randomCalled == false, "Random already initiated");
+        require(block.timestamp >= END_TIME, "Not endable");
         randomCalled = true;
         COORDINATOR.requestRandomWords(
             keyHash,
@@ -81,6 +84,7 @@ contract SecretSanta is
             callbackGasLimit,
             numWords
         );
+        emit Ended(msg.sender);
     }
 
     /// @notice Deposit a token from a verified collection and enter.
