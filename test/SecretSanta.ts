@@ -50,9 +50,29 @@ describe("SecretSanta", function () {
     describe("whitelisted connection", function () {
 
       beforeEach(async function () {
-        await this.secretSanta
+        await expect(
+          this.secretSanta
           .connect(this.signers[0])
-          .allowListCollection(this.token.address);
+          .allowListCollection(this.token.address)
+        )
+          .to.emit(this.secretSanta, 'CollectionAdded')
+          .withArgs(this.token.address);
+      });
+
+      it("should allow whitelisting multiple connections", async function () {
+        const factory = await ethers.getContractFactory('ERC721PresetMinterPauserAutoId')
+        const token2 = await factory.deploy('2', '2', '2');
+        const token3 = await factory.deploy('3', '3', '3');
+        await expect(
+          this.secretSanta
+          .connect(this.signers[0])
+          .allowListCollections([token2.address, token3.address])
+        )
+          .to.emit(this.secretSanta, 'CollectionAdded')
+          .withArgs(token2.address)
+          .to.emit(this.secretSanta, 'CollectionAdded')
+          .withArgs(token3.address);
+
       });
 
       it("should emit message on deposit", async function () {

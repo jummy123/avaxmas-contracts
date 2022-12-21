@@ -37,6 +37,7 @@ contract SecretSanta is
     );
 
     event Ended(address indexed ender);
+    event CollectionAdded(address indexed collection);
 
     EnumerableSet.AddressSet private collectionAllowList;
 
@@ -70,6 +71,15 @@ contract SecretSanta is
     /// @notice Add an ERC751 collection to the allow list.
     function allowListCollection(address collection) public onlyOwner {
         collectionAllowList.add(collection);
+        emit CollectionAdded(collection);
+    }
+
+    function allowListCollections(address[] calldata collections) public onlyOwner {
+        uint256 l = collections.length;
+        for(uint256 i = 0; i < l; ++i) {
+            collectionAllowList.add(collections[i]);
+            emit CollectionAdded(collections[i]);
+        }
     }
 
     /// @notice Call chainlink VRF and set `randomCalled`.
