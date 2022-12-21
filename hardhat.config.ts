@@ -9,6 +9,7 @@ import "solidity-coverage";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-gas-reporter";
 import "hardhat-abi-exporter";
+import "@nomicfoundation/hardhat-chai-matchers";
 
 dotenv.config();
 
