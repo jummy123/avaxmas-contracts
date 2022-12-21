@@ -19,23 +19,55 @@ describe("SecretSanta", function () {
   });
 
   it("should fail if token not approved", async function () {
-    expect(
+    await expect(
       this.secretSanta
         .connect(this.signers[1])
         .deposit(this.token.address, this.tokenOne)
     ).to.be.reverted;
   });
 
-  it("should succeed if token approved", async function () {
-    await this.token
-      .connect(this.signers[1])
-      .approve(this.secretSanta.address, this.tokenOne);
-	expect(
-      this.secretSanta
+  describe("gifting tokens", function () {
+    beforeEach(async function () {
+      await this.token
         .connect(this.signers[1])
-        .deposit(this.token, this.tokenOne)
-    )
-      .to.emit(this.secretSanta, "Deposited")
-      .withArgs(this.signers[1].address, this.token, this.tokenOne);
+        .approve(this.secretSanta.address, this.tokenOne);
+    });
+
+    it("should fail if token not in allow list", async function () {
+  	  await expect(
+        this.secretSanta
+          .connect(this.signers[1])
+          .deposit(this.token.address, this.tokenOne)
+      )
+        .to.be.reverted
+    });
+
+    describe("whitelisted connection", function () {
+
+      beforeEach(async function () {
+        await this.secretSanta
+          .connect(this.signers[0])
+          .allowListCollection(this.token.address);
+      });
+
+      it("should emit message on deposit", async function () {
+        await this.secretSanta.connect
+    	  await expect(
+          this.secretSanta
+            .connect(this.signers[1])
+            .deposit(this.token.address, this.tokenOne)
+        )
+          .to.emit(this.secretSanta, "Deposited")
+          .withArgs(this.signers[1].address, this.token.address, this.tokenOne);
+
+        expect(await this.secretSanta.senderDetails(this.signers[1].address))
+          .to.eql([this.token.address, this.tokenOne]);
+
+      });
+
+
+    });
+
   });
+
 });

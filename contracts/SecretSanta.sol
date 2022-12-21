@@ -96,7 +96,7 @@ contract SecretSanta is
 
     /// @notice Returns the details of a gift for a giver.
     function senderDetails(address giver) public view returns (address, uint256) {
-        Entry memory entry = entries[entryIndex[giver] - 1];
+        Entry storage entry = entries[entryIndex[giver] - 1];
         return (entry.collection, entry.tokenId);
     }
 
