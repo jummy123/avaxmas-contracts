@@ -51,21 +51,31 @@ describe("SecretSanta", function () {
       });
 
       it("should emit message on deposit", async function () {
-        await this.secretSanta.connect
-    	  await expect(
+    	await expect(
           this.secretSanta
             .connect(this.signers[1])
             .deposit(this.token.address, this.tokenOne)
         )
           .to.emit(this.secretSanta, "Deposited")
           .withArgs(this.signers[1].address, this.token.address, this.tokenOne);
-
         expect(await this.secretSanta.senderDetails(this.signers[1].address))
           .to.eql([this.token.address, this.tokenOne]);
-
       });
 
+      describe("token deposited", async function () {
 
+        beforeEach(async function () {
+          await this.secretSanta
+            .connect(this.signers[1])
+            .deposit(this.token.address, this.tokenOne);
+        });
+
+        it("should revert receiver details before ended", async function () {
+          await expect(this.secretSanta.receiverDetails(this.signers[1].address))
+            .to.be.reverted;
+
+        });
+      });
     });
 
   });
