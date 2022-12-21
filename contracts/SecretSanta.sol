@@ -85,7 +85,7 @@ contract SecretSanta is
 
     /// @notice Deposit a token from a verified collection and enter.
     /// @notice The contract must be approved to spend this token before calling this function.
-    function enter(address collection, uint256 tokenId) public {
+    function deposit(address collection, uint256 tokenId) public {
         require(collectionAllowList.contains(collection) == true, "Collection not in allow list");
         require(entryIndex[msg.sender] == 0, "Address already deposied");
         IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
