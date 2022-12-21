@@ -91,6 +91,7 @@ contract SecretSanta is
     /// @notice The contract must be approved to spend this token before calling this function.
     function deposit(address collection, uint256 tokenId) public {
         require(collectionAllowList.contains(collection) == true, "Collection not in allow list");
+        require(randomCalled == false, "Ended");
         require(entryIndex[msg.sender] == 0, "Address already deposied");
         IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
         entries.push(Entry(msg.sender, collection, tokenId));

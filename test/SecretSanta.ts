@@ -13,7 +13,10 @@ describe("SecretSanta", function () {
     this.secretSanta = await ethers.getContract("SecretSanta");
     this.vrf = await ethers.getContract("MockVRFCoordinator");
     this.token = await ethers.getContract("TestToken");
-    this.tokenOne = (await this.token.mint(this.signers[1].address)).value;
+    this.tokenOne = 0;
+    const tx = await this.token.mint(this.signers[1].address);
+    const receipt = await tx.wait();
+    this.tokenOne = BigNumber.from(ethers.utils.hexValue(receipt.logs[0]['topics'][3]));  // From transfer event.
   });
 
   it("should set deployer as owner", async function () {
@@ -36,7 +39,7 @@ describe("SecretSanta", function () {
     });
 
     it("should fail if token not in allow list", async function () {
-  	  await expect(
+        await expect(
         this.secretSanta
           .connect(this.signers[1])
           .deposit(this.token.address, this.tokenOne)
@@ -53,7 +56,7 @@ describe("SecretSanta", function () {
       });
 
       it("should emit message on deposit", async function () {
-    	await expect(
+        await expect(
           this.secretSanta
             .connect(this.signers[1])
             .deposit(this.token.address, this.tokenOne)
@@ -98,6 +101,20 @@ describe("SecretSanta", function () {
               .to.be.reverted;
           });
 
+          it("should not allow deposit after ended", async function () {
+            await this.secretSanta.end();
+
+            const tx = await this.token.mint(this.signers[9].address);
+            const receipt = await tx.wait();
+            const newToken = BigNumber.from(ethers.utils.hexValue(receipt.logs[0]['topics'][3]));  // From transfer event.
+            await this.token.connect(this.signers[9]).approve(this.secretSanta.address, newToken);
+            await expect(
+               this.secretSanta
+                 .connect(this.signers[9])
+                 .deposit(this.token.address, newToken)
+             )
+               .to.be.reverted
+          });
         });
 
       });
