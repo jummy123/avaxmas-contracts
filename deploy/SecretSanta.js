@@ -14,13 +14,13 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
   else if (chainId == 43113) {
     // avalanche fuji uses chainlink
     vrfAddress = '0x2eD832Ba664535e5886b75D64C46EB9a228C2610';
-    vrfSubscription = 0;
-    keyHash = '0x222';
+    vrfSubscription = 525;
+    keyHash = '0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61';
   }
   else if (chainId == 31337) {
     // hardhat uses mock vrf
     vrfAddress = (await deployments.get('MockVRFCoordinator')).address;
-    vrfSubscription = 0;
+    vrfSubscription = 525;
     keyHash = '0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61';
   }
 

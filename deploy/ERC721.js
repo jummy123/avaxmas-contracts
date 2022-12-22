@@ -3,7 +3,7 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
   const {deployer} = await getNamedAccounts();
   const chainId = await getChainId();
 
-  if (chainId == 31337) {
+  if (chainId == 31337 || chainId == 43113 ) {
     await deploy('TestToken', {
       contract: 'TestToken',
       from: deployer,
