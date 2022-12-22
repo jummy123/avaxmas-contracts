@@ -157,4 +157,21 @@ contract SecretSanta is
         return SecretSanta.onERC721Received.selector;
     }
 
+    function participated(address user) public view returns (bool) {
+        return entryIndex[user] > 0;
+    }
+
+    function totalEntries() public view returns (uint256) {
+        return entries.length;
+    }
+
+    function getEntries(uint256 count, uint256 skip) public view returns (Entry[] memory) {
+        uint256 endIdx = skip+count > entries.length ? entries.length : skip+count;
+        Entry[] memory result = new Entry[](endIdx-skip);
+        for (uint256 i = skip; i < endIdx; ++i) {
+            result[i-skip] = entries[i];
+        }
+        return result;
+    }
+
 }

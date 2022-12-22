@@ -76,6 +76,9 @@ describe("SecretSanta", function () {
       });
 
       it("should emit message on deposit", async function () {
+
+        expect(await this.secretSanta.totalEntries()).to.equal(0);
+        expect(await this.secretSanta.participated(this.signers[1].address)).to.equal(false);
         await expect(
           this.secretSanta
             .connect(this.signers[1])
@@ -89,6 +92,8 @@ describe("SecretSanta", function () {
             "NGMI");
         expect(await this.secretSanta.senderDetails(this.signers[1].address))
           .to.eql([this.token.address, this.tokenOne, 'NGMI']);
+        expect(await this.secretSanta.totalEntries()).to.equal(1);
+        expect(await this.secretSanta.participated(this.signers[1].address)).to.equal(true);
       });
 
       describe("token deposited", async function () {
@@ -132,6 +137,8 @@ describe("SecretSanta", function () {
           });
 
           it("should allocate gift after ending", async function () {
+
+            expect(await this.secretSanta.totalEntries()).to.equal(2);
             expect(
               await this.secretSanta.receiverDetails(this.signers[1].address)
             )
@@ -167,6 +174,18 @@ describe("SecretSanta", function () {
               .withArgs(this.signers[2].address, this.token.address, this.tokenOne);
             expect(await this.token.ownerOf(this.tokenOne))
               .to.equal(this.signers[2].address);
+
+          });
+
+          it("should paginate entries", async function () {
+            const entries0 = await this.secretSanta.getEntries(2, 0);
+            expect(entries0.length).to.equal(2);
+
+            const entries1 = await this.secretSanta.getEntries(1, 0);
+            expect(entries1.length).to.equal(1);
+
+            const entries2 = await this.secretSanta.getEntries(2, 1);
+            expect(entries2.length).to.equal(1);
 
           });
 
