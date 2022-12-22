@@ -27,7 +27,7 @@ describe("SecretSanta", function () {
     await expect(
       this.secretSanta
         .connect(this.signers[1])
-        .deposit(this.token.address, this.tokenOne)
+        .deposit(this.token.address, this.tokenOne, "Happy New Year")
     ).to.be.reverted;
   });
 
@@ -42,7 +42,7 @@ describe("SecretSanta", function () {
         await expect(
         this.secretSanta
           .connect(this.signers[1])
-          .deposit(this.token.address, this.tokenOne)
+          .deposit(this.token.address, this.tokenOne, "For You")
       )
         .to.be.reverted
     });
@@ -79,12 +79,16 @@ describe("SecretSanta", function () {
         await expect(
           this.secretSanta
             .connect(this.signers[1])
-            .deposit(this.token.address, this.tokenOne)
+            .deposit(this.token.address, this.tokenOne, "NGMI")
         )
           .to.emit(this.secretSanta, "Deposited")
-          .withArgs(this.signers[1].address, this.token.address, this.tokenOne);
+          .withArgs(
+            this.signers[1].address,
+            this.token.address,
+            this.tokenOne,
+            "NGMI");
         expect(await this.secretSanta.senderDetails(this.signers[1].address))
-          .to.eql([this.token.address, this.tokenOne]);
+          .to.eql([this.token.address, this.tokenOne, 'NGMI']);
       });
 
       describe("token deposited", async function () {
@@ -92,7 +96,7 @@ describe("SecretSanta", function () {
         beforeEach(async function () {
           await this.secretSanta
             .connect(this.signers[1])
-            .deposit(this.token.address, this.tokenOne);
+            .deposit(this.token.address, this.tokenOne, "WAGMI");
         });
 
         it("should revert receiver details before ended", async function () {
@@ -112,7 +116,7 @@ describe("SecretSanta", function () {
             const receipt = await tx.wait();
             this.newToken = BigNumber.from(ethers.utils.hexValue(receipt.logs[0]['topics'][3]));
             await this.token.connect(this.signers[2]).approve(this.secretSanta.address, this.newToken);
-            await this.secretSanta.connect(this.signers[2]).deposit(this.token.address, this.newToken);
+            await this.secretSanta.connect(this.signers[2]).deposit(this.token.address, this.newToken, "AVAX");
             await time.setNextBlockTimestamp(1672531201);
             await mine();
 
@@ -131,12 +135,20 @@ describe("SecretSanta", function () {
             expect(
               await this.secretSanta.receiverDetails(this.signers[1].address)
             )
-              .to.eql([this.signers[2].address, this.token.address, this.newToken])
+              .to.eql([
+                this.signers[2].address,
+                this.token.address,
+                this.newToken,
+                'AVAX'])
 
             await expect(
               await this.secretSanta.receiverDetails(this.signers[2].address)
             )
-              .to.eql([this.signers[1].address, this.token.address, this.tokenOne])
+              .to.eql([
+                this.signers[1].address,
+                this.token.address,
+                this.tokenOne,
+                'WAGMI'])
           });
 
           it("should send gift when claiming", async function () {
@@ -167,7 +179,7 @@ describe("SecretSanta", function () {
             await expect(
                this.secretSanta
                  .connect(this.signers[9])
-                 .deposit(this.token.address, newToken)
+                 .deposit(this.token.address, newToken, 'YES')
              )
                .to.be.reverted
           });

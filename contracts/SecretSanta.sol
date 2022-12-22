@@ -22,12 +22,14 @@ contract SecretSanta is
         address sender;
         address collection;
         uint256 tokenId;
+        string message;
     }
 
     event Deposited(
         address indexed giver,
         address indexed collection,
-        uint256 tokenId
+        uint256 tokenId,
+        string message
     );
 
     event Received(
@@ -99,31 +101,31 @@ contract SecretSanta is
 
     /// @notice Deposit a token from a verified collection and enter.
     /// @notice The contract must be approved to spend this token before calling this function.
-    function deposit(address collection, uint256 tokenId) public {
+    function deposit(address collection, uint256 tokenId, string memory message) public {
         require(collectionAllowList.contains(collection) == true, "Collection not in allow list");
         require(randomCalled == false, "Ended");
         require(entryIndex[msg.sender] == 0, "Address already deposied");
         IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
-        entries.push(Entry(msg.sender, collection, tokenId));
+        entries.push(Entry(msg.sender, collection, tokenId, message));
         entryIndex[msg.sender] = entries.length;
-        emit Deposited(msg.sender, collection, tokenId);
+        emit Deposited(msg.sender, collection, tokenId, message);
     }
 
     /// @notice Returns the details of a gift for a giver.
-    function senderDetails(address giver) public view returns (address, uint256) {
+    function senderDetails(address giver) public view returns (address, uint256, string memory) {
         Entry storage entry = entries[entryIndex[giver] - 1];
-        return (entry.collection, entry.tokenId);
+        return (entry.collection, entry.tokenId, entry.message);
     }
 
     /// @notice Returns the collection, tokenId and for a gift.
     /// @notice Returns null, null, null if raffle not ended.
-    function receiverDetails(address receiver) public view returns (address, address, uint256) {
+    function receiverDetails(address receiver) public view returns (address, address, uint256, string memory) {
         require(randomResult != 0, "Not ended");
         Entry memory entry = entries[(entryIndex[receiver] + randomResult) % entries.length];
         if (entry.sender == receiver) {
           entry = entries[(entryIndex[receiver] + randomResult + 1) % entries.length];
         }
-        return (entry.sender, entry.collection, entry.tokenId);
+        return (entry.sender, entry.collection, entry.tokenId, entry.message);
     }
 
     /// @notice Sends the token received to the caller.
