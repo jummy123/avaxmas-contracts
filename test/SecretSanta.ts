@@ -178,15 +178,14 @@ describe("SecretSanta", function () {
           });
 
           it("should paginate entries", async function () {
-            const entries0 = await this.secretSanta.getEntries(2, 0);
+            const entries0 = await this.secretSanta.getLatestEntries(2);
             expect(entries0.length).to.equal(2);
 
-            const entries1 = await this.secretSanta.getEntries(1, 0);
+            const entries1 = await this.secretSanta.getLatestEntries(1);
             expect(entries1.length).to.equal(1);
 
-            const entries2 = await this.secretSanta.getEntries(2, 1);
-            expect(entries2.length).to.equal(1);
-
+            const entries2 = await this.secretSanta.getLatestEntries(10);
+            expect(entries2.length).to.equal(2);
           });
 
           it("should not allow deposit after ended", async function () {

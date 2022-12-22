@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -165,13 +166,14 @@ contract SecretSanta is
         return entries.length;
     }
 
-    function getEntries(uint256 count, uint256 skip) public view returns (Entry[] memory) {
-        uint256 endIdx = skip+count > entries.length ? entries.length : skip+count;
-        Entry[] memory result = new Entry[](endIdx-skip);
-        for (uint256 i = skip; i < endIdx; ++i) {
-            result[i-skip] = entries[i];
-        }
-        return result;
-    }
-
+	function getLatestEntries(uint256 count) public view returns (Entry[] memory) {
+		uint256 _count = count > entries.length ? entries.length : count;
+		Entry[] memory result = new Entry[](_count);
+		uint j = 0;
+		for (uint256 i = entries.length; i > entries.length - _count ; i--) {
+			result[j] = entries[i-1];
+			j++;
+		}
+		return result;
+	}
 }
