@@ -118,7 +118,6 @@ contract SecretSanta is
     }
 
     /// @notice Returns the collection, tokenId and for a gift.
-    /// @notice Returns null, null, null if raffle not ended.
     function receiverDetails(address receiver) public view returns (address, address, uint256, string memory) {
         require(randomResult != 0, "Not ended");
         Entry memory entry = entries[(entryIndex[receiver] + randomResult) % entries.length];
