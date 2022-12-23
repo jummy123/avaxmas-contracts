@@ -105,8 +105,12 @@ describe("SecretSanta", function () {
         });
 
         it("should revert receiver details before ended", async function () {
-          await expect(this.secretSanta.receiverDetails(this.signers[1].address))
-            .to.be.reverted;
+          expect(await this.secretSanta.receiverDetails(this.signers[1].address))
+            .to.eql([
+              ethers.constants.AddressZero,
+              ethers.constants.AddressZero,
+              BigNumber.from(0),
+              ''])
 
         });
 

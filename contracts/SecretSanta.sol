@@ -31,13 +31,11 @@ contract SecretSanta is
         uint256 tokenId,
         string message
     );
-
     event Received(
         address indexed receiver,
         address indexed collection,
         uint256 tokenId
     );
-
     event Ended(address indexed ender);
     event CollectionAdded(address indexed collection);
 
@@ -45,13 +43,12 @@ contract SecretSanta is
 
     // VRF config.
     VRFCoordinatorV2Interface public COORDINATOR;
-    uint64 s_subscriptionId;
-    address vrfCoordinator;
+    uint64 immutable s_subscriptionId;
     // see https://docs.chain.link/docs/vrf-contracts/#configurations
-    bytes32 keyHash;
-    uint32 callbackGasLimit = 200000;
-    uint16 requestConfirmations = 3;
-    uint32 numWords =  1;
+    bytes32 immutable keyHash;
+    uint32 immutable callbackGasLimit = 200000;
+    uint16 immutable requestConfirmations = 3;
+    uint32 immutable numWords =  1;
 
     // Contract variables.
     uint256 public constant END_TIME = 1672531200;   // 2023, January 1 GMT/UTC
@@ -86,7 +83,7 @@ contract SecretSanta is
 
     /// @notice Call chainlink VRF and set `randomCalled`.
     function end() public {
-        require(randomCalled == false, "Random already initiated");
+        require(!randomCalled, "Random already initiated");
         require(block.timestamp >= END_TIME, "Not endable");
         randomCalled = true;
         COORDINATOR.requestRandomWords(
@@ -101,10 +98,10 @@ contract SecretSanta is
 
     /// @notice Deposit a token from a verified collection and enter.
     /// @notice The contract must be approved to spend this token before calling this function.
-    function deposit(address collection, uint256 tokenId, string memory message) public {
-        require(collectionAllowList.contains(collection) == true, "Collection not in allow list");
-        require(randomCalled == false, "Ended");
-        require(entryIndex[msg.sender] == 0, "Address already deposied");
+    function deposit(address collection, uint256 tokenId, string calldata message) public {
+        require(collectionAllowList.contains(collection), "Collection not in allow list");
+        require(!randomCalled, "Ended");
+        require(entryIndex[msg.sender] == 0, "Address already deposited");
         entries.push(Entry(msg.sender, collection, tokenId, message));
         entryIndex[msg.sender] = entries.length;
         IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
@@ -119,11 +116,8 @@ contract SecretSanta is
 
     /// @notice Returns the collection, tokenId and for a gift.
     function receiverDetails(address receiver) public view returns (address, address, uint256, string memory) {
-        require(randomResult != 0, "Not ended");
+        if (randomResult == 0) return (address(0), address(0), 0, "");
         Entry memory entry = entries[(entryIndex[receiver] + randomResult) % entries.length];
-        if (entry.sender == receiver) {
-          entry = entries[(entryIndex[receiver] + randomResult + 1) % entries.length];
-        }
         return (entry.sender, entry.collection, entry.tokenId, entry.message);
     }
 
@@ -132,9 +126,6 @@ contract SecretSanta is
         require(randomResult != 0, "Not ended");
         require(entryIndex[msg.sender] != 0, "Not entered");
         Entry memory entry = entries[(entryIndex[msg.sender] + randomResult) % entries.length];
-        if (entry.sender == msg.sender) {
-          entry = entries[(entryIndex[msg.sender] + randomResult + 1) % entries.length];
-        }
         require(IERC721(entry.collection).ownerOf(entry.tokenId) == address(this), "Already claimed");
         IERC721(entry.collection).safeTransferFrom(address(this), msg.sender, entry.tokenId);
         emit Received(msg.sender, entry.collection, entry.tokenId);
@@ -144,7 +135,8 @@ contract SecretSanta is
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
-        randomResult = randomWords[0];
+        uint256 random = randomWords[0] % entries.length;
+        randomResult = random == 1 ? 2 : random;
     }
 
     function onERC721Received(
