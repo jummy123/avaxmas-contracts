@@ -13,7 +13,7 @@ task("allowListCollections", "Allow lists collections from a JSON file'")
         collectionAddresses.push(obj['address']);
     });
     for (let i=0; i < collectionAddresses.length; i+= 100) {
-        console.log('allow listing contracts', i, i+100);
         await secretSanta.allowListCollections(collectionAddresses.slice(i, i+100));
+        console.log('allow listed contracts', i, i+100);
     }
   });
