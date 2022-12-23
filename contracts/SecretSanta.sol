@@ -54,7 +54,7 @@ contract SecretSanta is
     uint32 numWords =  1;
 
     // Contract variables.
-    uint256 public constant END_TIME = 1671778210; //1672531200;   // 2023, January 1 GMT/UTC
+    uint256 public constant END_TIME = 1672531200;   // 2023, January 1 GMT/UTC
     bool private randomCalled;
     uint256 public randomResult;
     mapping(address => uint256) private entryIndex;
