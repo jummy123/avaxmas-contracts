@@ -8,8 +8,8 @@ module.exports = async function ({ ethers, deployments, getNamedAccounts }) {
   if (chainId == 43114) {
     // Avalanche mainnet uses chainlink
     vrfAddress = '0xd5D517aBE5cF79B7e95eC98dB0f0277788aFF634';
-    vrfSubscription = 0;  // TODO setup account
-    keyHash = '0x111';
+    vrfSubscription = 31;
+    keyHash = '0x89630569c9567e43c4fe7b1633258df9f2531b62f2352fa721cf3162ee4ecb46';
   }
   else if (chainId == 43113) {
     // avalanche fuji uses chainlink
