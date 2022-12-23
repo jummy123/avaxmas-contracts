@@ -10,6 +10,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "hardhat-gas-reporter";
 import "hardhat-abi-exporter";
 import "@nomicfoundation/hardhat-chai-matchers";
+import "./scripts/allowList.js";
 
 dotenv.config();
 
