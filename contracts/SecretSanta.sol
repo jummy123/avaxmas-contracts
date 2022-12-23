@@ -105,9 +105,9 @@ contract SecretSanta is
         require(collectionAllowList.contains(collection) == true, "Collection not in allow list");
         require(randomCalled == false, "Ended");
         require(entryIndex[msg.sender] == 0, "Address already deposied");
-        IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
         entries.push(Entry(msg.sender, collection, tokenId, message));
         entryIndex[msg.sender] = entries.length;
+        IERC721(collection).safeTransferFrom(msg.sender, address(this), tokenId);
         emit Deposited(msg.sender, collection, tokenId, message);
     }
 
@@ -164,14 +164,14 @@ contract SecretSanta is
         return entries.length;
     }
 
-	function getLatestEntries(uint256 count) public view returns (Entry[] memory) {
-		uint256 _count = count > entries.length ? entries.length : count;
-		Entry[] memory result = new Entry[](_count);
-		uint j = 0;
-		for (uint256 i = entries.length; i > entries.length - _count ; i--) {
-			result[j] = entries[i-1];
-			j++;
-		}
-		return result;
-	}
+    function getLatestEntries(uint256 count) public view returns (Entry[] memory) {
+        uint256 _count = count > entries.length ? entries.length : count;
+        Entry[] memory result = new Entry[](_count);
+        uint j = 0;
+        for (uint256 i = entries.length; i > entries.length - _count ; i--) {
+            result[j] = entries[i-1];
+            j++;
+        }
+        return result;
+    }
 }
